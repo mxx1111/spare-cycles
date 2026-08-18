@@ -1,0 +1,40 @@
+name: CI
+
+
+- > on:
+
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm exec eslint .
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Build web app
+        run: pnpm --filter @md/web build
