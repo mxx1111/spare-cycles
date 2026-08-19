@@ -38,7 +38,7 @@ Every task declares a privacy tier:
 |---|---|---|
 | **P0 · Public** | An ordinary open-source repo | The code is already public |
 | **P1 · Redacted pack** | Interfaces, acceptance tests, fake fixtures. No business logic. | Default for private projects |
-| **P2 · Ephemeral sandbox** | A Codespace on the requester's repo, revoked when done. Code never touches the worker's disk. | The task genuinely needs the real codebase |
+| **P2 · Temporary trusted access** | A worker-controlled Codespace with full, copyable access to the visible repository. Revocation stops future access but cannot recall copies. | The task needs the real codebase and the worker is trusted with it |
 | **P3 · Trust circle** | Full access under NDA | Established relationships only |
 
 P1 is the interesting one. The `sparepack` CLI extracts a minimal reproducible subset from your private repo — allowlist only, nothing is exposed unless you name it — strips function bodies down to signatures, swaps real data for generated fixtures, scans for credentials and PII, and makes you review the output file by file before it writes anything. The worker implements against the tests. Your business logic never leaves your machine.

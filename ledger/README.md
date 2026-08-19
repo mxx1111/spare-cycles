@@ -31,7 +31,7 @@ Append-only. One JSON object per line in `ledger.jsonl`. Never edit a line, neve
 |---|---|---|
 | `grant` | system → user balance | `to`, `reason` |
 | `escrow` | requester balance → escrow | `from`, `ref` |
-| `settle` | escrow → worker balance | `to`, `ref`, `pr` |
+| `settle` | escrow → worker balance | `to`, `ref`, canonical GitHub `pr` URL |
 | `refund` | escrow → requester balance | `to`, `ref`, `reason` |
 | `split` | escrow → both, as two entries | `to`, `ref`, `by`, `reason` |
 | `adjust` | maintainer correction | `to`, `by`, `reason` |
@@ -49,8 +49,9 @@ User-to-user transfers do not exist in this schema. This is red line 5 from [COM
 ## Timestamps must be observed, not typed
 
 `ts` is the time the event actually happened, taken from the source of truth: `createdAt` on
-the issue for an `escrow`, `closedAt` for a `refund`, `mergedAt` on the pull request for a
-`settle`. Pull it with `gh` rather than typing something plausible.
+the issue for an `escrow`, `closedAt` for a `refund`, and `mergedAt` on a merged pull request
+or `closedAt` when the requester explicitly accepts an unmerged delivery. Pull it with `gh`
+rather than typing something plausible.
 
 This is stated as a rule because it was broken. Entries 1–8 were originally filled in with
 tidy invented values — 12:00, 12:01, … 14:00 — none of which corresponded to anything. The
@@ -60,7 +61,7 @@ See the header of `ledger.jsonl` for the correction.
 
 ## Invariants
 
-Checked by `verify.mjs` on every run:
+Checked locally and in CI:
 
 1. `seq` starts at 1, increases by exactly 1, no gaps or repeats
 2. `ts` never goes backwards, and is never in the future (5 min clock-skew tolerance)
@@ -71,8 +72,12 @@ Checked by `verify.mjs` on every run:
 7. Every `settle`/`refund`/`split` references a `ref` that had an `escrow`
 8. Escrow released for a `ref` never exceeds escrow taken for that `ref`
 9. Total TP in circulation equals the sum of all `grant` and `adjust` amounts
+10. A `refund` returns only to the requester who funded that issue's escrow
+11. Every `settle` names an existing closed or merged GitHub PR whose event time matches `ts` and whose body references the task
 
-Invariants 5 and 6 are checked **incrementally**, not just at the end. A history that dips negative in the middle and recovers is still invalid.
+Invariants 1-10 are enforced by `verify.mjs`. Invariant 11 is enforced by `pr-evidence.mjs`
+against GitHub's API in CI. Invariants 5 and 6 are checked **incrementally**, not just at the
+end. A history that dips negative in the middle and recovers is still invalid.
 
 第 5 和第 6 条是**逐条增量检查**的，不是只看最终结果。中途出现负数、后面又补回来的历史一样判为无效。
 
