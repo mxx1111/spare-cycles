@@ -27,6 +27,11 @@ jobs:
       - name: Ledger invariants
         run: npm run ledger
 
+      - name: Settlement pull request evidence
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run ledger:prs
+
       - name: Ledger stats check
         run: npm run stats -- --check
 
@@ -47,6 +52,24 @@ jobs:
       # COMPLIANCE.md red line 1, enforced rather than promised.
       - name: Credential scan
         run: npm run scan
+
+      - name: Pull request metadata scan
+        if: github.event_name == 'pull_request'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s\n%s' "$TITLE" "$BODY" | node scripts/scan-text.mjs > pr-metadata-verdict.json
+          cat pr-metadata-verdict.json
+          node -e '
+            const verdict = require("./pr-metadata-verdict.json");
+            if (verdict.block) {
+              for (const item of verdict.credentials) {
+                console.error(`::error::${item.label} (${item.severity}) at submitted-text line ${item.line}`);
+              }
+              process.exit(1);
+            }
+          '
 
       # Only reaches PRs to this repository. Delivery PRs live in the requester's repo,
       # where this workflow has no reach — see the note in check-attestation.mjs.
