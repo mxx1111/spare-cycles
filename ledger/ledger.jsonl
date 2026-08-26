@@ -30,3 +30,12 @@
 {"seq": 16, "ts": "2026-08-18T15:11:05Z", "type": "escrow", "from": "mxx1111", "amount": 10, "ref": "#10"}
 {"seq": 17, "ts": "2026-08-18T15:11:36Z", "type": "escrow", "from": "mxx1111", "amount": 10, "ref": "#11"}
 {"seq": 18, "ts": "2026-08-18T16:19:50Z", "type": "settle", "to": "ghzhost", "amount": 10, "ref": "#11", "pr": "https://github.com/mxx1111/spare-cycles/pull/13"}
+{"seq": 19, "ts": "2026-08-25T13:23:20Z", "type": "adjust", "to": "mxx1111", "amount": 50, "by": "mxx1111", "reason": "funding the board under GOVERNANCE.md 'the one exception'; issuance 1 of 3, escrows #18 (retroactive audit task); see GOVERNANCE-LOG 2026-08-24 and issue #20"}
+{"seq": 20, "ts": "2026-08-25T13:23:25Z", "type": "escrow", "from": "mxx1111", "amount": 50, "ref": "#18"}
+{"seq": 21, "ts": "2026-08-25T13:23:30Z", "type": "adjust", "to": "mxx1111", "amount": 40, "by": "mxx1111", "reason": "funding the board; issuance 2 of 3, completes the tier-L escrow on #18 and tops up #10"}
+{"seq": 22, "ts": "2026-08-25T13:23:35Z", "type": "escrow", "from": "mxx1111", "amount": 30, "ref": "#18"}
+{"seq": 23, "ts": "2026-08-25T13:23:40Z", "type": "escrow", "from": "mxx1111", "amount": 10, "ref": "#10"}
+{"seq": 24, "ts": "2026-08-25T13:23:45Z", "type": "adjust", "to": "mxx1111", "amount": 30, "by": "mxx1111", "reason": "funding the board; issuance 3 of 3, escrows #19 (remap)"}
+{"seq": 25, "ts": "2026-08-25T13:23:50Z", "type": "escrow", "from": "mxx1111", "amount": 30, "ref": "#19"}
+{"seq": 26, "ts": "2026-08-25T13:23:55Z", "type": "settle", "to": "ghzhost", "amount": 10, "ref": "#10", "pr": "https://github.com/mxx1111/sparepack/pull/1"}
+{"seq": 27, "ts": "2026-08-25T13:24:00Z", "type": "split", "to": "rafaio1", "amount": 10, "ref": "#10", "by": "mxx1111", "reason": "duplicate work caused by a claim rule that required the maintainer to be awake; see GOVERNANCE-LOG 2026-08-24"}

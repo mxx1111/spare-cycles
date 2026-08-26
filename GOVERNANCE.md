@@ -49,26 +49,52 @@ Limits are per person, not per account. Alt accounts to get around them are a ba
 | Stage | Action | Timeout |
 |---|---|---|
 | Posted | Issue opened, TP escrowed | 30 days, then auto-close and refund |
-| Claimed | `/claim` comment, **maintainer assigns the issue** | 2× the tier's time estimate, then auto-release |
-| Delivered | PR opened with `Closes #<issue>` | — |
+| Claimed | `/claim` comment, **assigned by the board within 30 min** | S 24 h · M 48 h · L 72 h **of silence**, warning at 75% |
+| Delivered | PR opened with `Closes #<issue>` | 7 days with no commit and no author reply releases the claim |
 | Under review | Requester reviews | 7 days, then escalates to `stale-review` |
 | Settled | PR merged, ledger updated, profiles updated | — |
 
 ### Claiming is a precondition, not an announcement
 
-**Do not start work until the issue is assigned to you.** A `/claim` comment is a request;
-the assignment is the answer. One person is assigned at a time, and only that person's
-delivery is eligible for the TP.
+**Do not start work until the issue is assigned to you.** A `/claim` comment is a request; the
+assignment is the answer. One person is assigned at a time, and only that person's delivery is
+eligible for the TP.
 
 This is not bureaucracy, it is the only thing standing between a contributor and wasted work.
-On the board's first day, task #7 received two independently correct implementations two
-hours apart. Both passed all nine acceptance tests. Only one could be paid. The second person
-spent their evening on work that had already been done, and they had no way to know — nothing
-on the issue said it was taken. That waste was the board's fault.
+On the board's first day, task #7 received two independently correct implementations two hours
+apart. Both passed all nine acceptance tests. Only one could be paid. The second person spent
+their evening on work that had already been done, and they had no way to know — nothing on the
+issue said it was taken. That waste was the board's fault.
+
+**The board assigns, not the maintainer.** The first version of this rule required a human to
+assign, and on 2026-08-19 it awarded three tasks to an account that had never delivered while
+putting the person who delivered two of them in violation — because the maintainer was asleep
+for the four minutes that decided it. A rule with an unwritten dependency on someone being
+awake is not a rule. `/claim` now stands on its own within 30 minutes, enforced by
+[the claims workflow](.github/workflows/claims.yml).
 
 If an issue is already assigned and you think you can do better, say so in a comment rather
 than opening a competing PR. If the assignee goes quiet past the timeout, the claim releases
 and you can take it.
+
+### The clock measures silence, not elapsed time
+
+A claim expires after **24 h (S) / 48 h (M) / 72 h (L)** — flat per tier, not a multiple of the
+estimate. 2× an S estimate is a one-hour window, which punishes not sharing the maintainer's
+timezone rather than punishing idleness.
+
+**Any substantive comment or a draft PR resets the clock.** Someone who says "halfway through,
+pnpm is fighting me" and someone who has vanished are in completely different situations, and a
+wall clock cannot tell them apart. The thing worth detecting was never slowness; it is holding a
+task while saying nothing. Saying something costs nearly nothing, which is exactly what makes it
+a good filter.
+
+**A warning fires at 75%, never a silent repossession.** Losing a claim should not be the first
+you hear about it. Releases carry no sanction and leave nothing on your record — reclaim freely.
+
+Requesters may **extend** a window by comment, never shorten it. The tier is already the
+requester's time estimate; a second, tighter deadline would let a task contradict its own tier,
+and it would aim a squeeze at the scarce side of this board. Workers are the scarce side.
 
 A `/claim` on an already-assigned issue, or from someone already at their limit (2 concurrent,
 5 per rolling week), is declined with a comment explaining which limit was hit.
@@ -92,6 +118,44 @@ Every ruling is written into `ledger.jsonl` with the arbitrator's handle and a l
 **Acceptance criteria are the contract.** If it was not in the issue when the task was claimed, it is not grounds for refusing delivery. This cuts both ways and it is why the task template makes acceptance criteria mandatory.
 
 ---
+
+## When an account disappears
+
+An account that no longer exists cannot hold a balance. TP owed to it cannot be settled — there
+is nothing to settle into — and writing the settlement anyway would put a number in the ledger
+corresponding to nobody.
+
+**The debt is recorded, not erased.** It stays in the contributor's profile marked owed and
+unpayable, in GOVERNANCE-LOG.md with what caused it, and in any task issue that credits their
+work. A record that quietly drops the people who leave is a record of whoever happens to still
+be here, which is a different and much less useful thing.
+
+**If they come back, they get paid.** Same amount, at the tier rate that applied when the work
+was delivered. No interest, no goodwill top-up, no discount for the delay — the debt is the
+debt.
+
+Conditions:
+
+- **The burden of proof is on the claimant.** Control of the email address on the original
+  commits, a signature verifiable against them, or details of the delivery that were never
+  public. A new account asserting it is the same person is not evidence.
+- **The judgement is the maintainer's and is written into GOVERNANCE-LOG.md**, accepted or
+  refused, with the reasoning. A refusal can go to `arbitrate` like any other dispute.
+- **No time limit.** A debt does not expire because the person took a year to come back. The
+  outstanding list is reviewed alongside the funding clause every 90 days.
+- **This creates no new issuance power.** Paying it uses the ordinary route — escrow on a task,
+  then `split` or `settle`. If the original escrow has already been cleared, it is topped up
+  first, under the funding clause and its existing limits.
+
+**This clause covers exactly one situation: an account that no longer exists.** It is not a
+general power to pay people outside the escrow system, and it is not a precedent for other
+sympathetic cases. Extending it needs its own rule change.
+
+**It may well never be used.** When an account goes, its pull requests usually go with it, and
+the commits, the email addresses and the signatures go too — the evidence someone would need to
+prove they are the person owed is often destroyed by the same event that created the debt. That
+is an honest limitation, not a reason to skip writing the clause. An acknowledged debt that
+cannot be discharged is still better than a quiet deletion.
 
 ## Sanctions
 
@@ -120,8 +184,8 @@ Maintainers cannot: issue TP into their own balance for their own use, alter his
 
 ### The one exception: funding the board
 
-Until **three separate accounts have each posted at least one task**, the maintainer may issue
-TP for the single purpose of funding tasks that other people get paid for.
+The maintainer may issue TP for the single purpose of funding tasks that other people get paid
+for.
 
 The distinction this rests on: TP cannot be transferred, sold, or cashed out, so points that pass
 through the maintainer's balance and into escrow buy the maintainer nothing. They leave for a
@@ -135,12 +199,32 @@ Conditions, all of them:
 - Escrowed on a posted task within 24 hours, or reversed with a compensating entry
 - Listed in [GOVERNANCE-LOG.md](GOVERNANCE-LOG.md) with the amount and what it funded
 - 50 TP at a time, and never while the maintainer already holds an unescrowed balance
+- Reviewed and re-argued in [GOVERNANCE-LOG.md](GOVERNANCE-LOG.md) every 90 days. **Next review due: 2026-11-22.**
 
 **None of this is machine-enforced.** `verify.mjs` will accept any `adjust` that balances; what
 stops abuse is that every issuance is a line in a public append-only file with the maintainer's
 name on it. This clause exists because the board's first month produced the opposite of the
 expected failure: points accumulated with people who only deliver, and ran out for the only
-person posting work. It expires on its own the moment a third requester appears.
+person posting work.
+
+**How this clause ends.** It used to end one way: when three separate accounts had each posted a
+task. [Phase 0](PHASE-0.md) closed with no demand side at all — eight tasks, one requester, and
+nobody who answered when asked whether they wanted anything done. A condition that may never fire
+is not an expiry, it is a permanent grant wearing an expiry's clothes, which is the exact failure
+[#12](https://github.com/mxx1111/spare-cycles/issues/12) asked people to watch for.
+
+So there are now two ways out, and only one of them depends on anybody else:
+
+1. **Three separate accounts have each posted at least one task.** The board has a demand side and
+   no longer needs funding. Kept because if it ever happens it should end the clause immediately.
+2. **A scheduled review is missed.** Every 90 days the clause must be re-argued in
+   GOVERNANCE-LOG.md — what it funded, whether the board still needs it, and why it is still the
+   least-bad option. Miss the date and the clause lapses; no further issuance is legitimate until
+   it is re-adopted through the normal rule-change procedure.
+
+The second one is the real one. It costs the maintainer something to keep this power — a public
+argument, on a schedule, that anyone can show up and contradict — and it does not wait on a
+requester who may never arrive.
 
 **This rule has been broken once**, on 2026-08-18, and the exception is documented rather than hidden. The `ts` field on entries 1–8 had been hand-written as invented values instead of observed event times; the last of them was several hours in the future and had deadlocked settlement. All nine were rewritten in one pass with real times pulled from the GitHub API. No amount, type, account, or balance changed — only timestamps that were wrong to begin with. The reasoning is in the header of `ledger.jsonl` and in [GOVERNANCE-LOG.md](GOVERNANCE-LOG.md), and `verify.mjs` now rejects any future-dated entry, which would have caught it on the first line. If this needs doing again, it needs a `governance` issue and seven days of discussion like any other rule change.
 
@@ -199,7 +283,7 @@ Open an issue with the `governance` label. Changes affecting TP pricing or red l
 | 阶段 | 动作 | 超时 |
 |---|---|---|
 | 已发布 | issue 开启，TP 进托管 | 30 天后自动关闭并退回 |
-| 已接单 | `/claim` 评论，**维护者指派 assignee** | 档位预估时长的 2 倍，之后自动释放 |
+| 已接单 | `/claim` 评论，**30 分钟内由板子自动指派** | S 24 小时 · M 48 小时 · L 72 小时**无动静**，75% 时先提醒 |
 | 已交付 | 提 PR，正文含 `Closes #<issue>` | — |
 | 待验收 | 发布者审阅 | 7 天后升级为 `stale-review` |
 | 已结算 | PR 合并，账本与档案更新 | — |
@@ -216,6 +300,27 @@ Open an issue with the `governance` label. Changes affecting TP pricing or red l
 
 如果一个 issue 已经被指派，而你觉得自己能做得更好，在评论里说，不要另提一个 PR 竞争。如果
 被指派的人超时没动静，认领会自动释放，那时你可以接。
+
+**指派的是板子，不是维护者。** 这条规则的第一版要求人工指派，结果在 2026-08-19，
+它把三个任务判给了一个从未交付过的账号，同时让真正交付了其中两个的人变成违规——
+只因为决定这件事的那四分钟里维护者在睡觉。一条暗含"某人得醒着"这个前提的规则不是规则。
+现在 `/claim` 在 30 分钟内自动生效，由[认领工作流](.github/workflows/claims.yml)执行。
+
+### 计时器测的是沉默，不是耗时
+
+认领窗口按档位固定：**S 24 小时 / M 48 小时 / L 72 小时**，不再用预估时长的 2 倍。
+2 倍会给 S 任务只留一个小时，那惩罚的是"不和维护者同一个时区"，不是惩罚拖延。
+
+**任何实质性的评论或一个 draft PR 都会重置计时。** 一个说"做了一半，pnpm 在跟我作对"的人，
+和一个人间蒸发的人，处境完全不同，而挂钟分辨不出这个差别。真正值得检测的从来不是慢，
+是占着任务却一声不吭。说一句话的成本几乎为零，这恰恰是它作为过滤器好用的原因。
+
+**剩 25% 时会先提醒一次，绝不静默收回。** 认领被释放不该是你听到的第一个消息。
+释放不带任何处分，你的记录上不会留下东西，随时可以重新认领。
+
+发布者可以通过评论**延长**窗口，但不能缩短。档位本身就是发布者给的时间估计；
+再加一个更紧的截止时间，会让任务和自己的档位互相矛盾，而且那是把压力对准了这块板子上稀缺的一侧。
+稀缺的是接单者。
 
 对已被指派的 issue 发 `/claim`，或者发起人已经到了上限（同时 2 个、滚动 7 天内 5 个），会被
 拒绝并附上说明是哪条限制卡住了。
@@ -239,6 +344,36 @@ Open an issue with the `governance` label. Changes affecting TP pricing or red l
 **验收标准就是合同。** 接单时 issue 里没写的东西，不能作为拒收的理由。这一条对双方同样成立，也正是任务模板把验收标准设为必填的原因。
 
 ---
+
+## 账号消失时
+
+一个不存在的账号无法持有余额。欠它的 TP 结算不出去——没有可以结算进去的地方——
+硬写一笔，等于在账本里放一个不对应任何人的数字。
+
+**这笔债记下来，不抹掉。** 它留在贡献者的 profile 里，标为「已欠、不可支付」；
+留在 GOVERNANCE-LOG.md 里，写明起因；也留在任何署了他名字的任务 issue 里。
+一份悄悄把离开的人删掉的记录，记的只是「碰巧还在的人」，那是另一种东西，而且没什么用。
+
+**人回来了，就付。** 原额，按交付当时的档位价目。不计息、不加补偿、也不因为拖久了打折。
+欠多少就是多少。
+
+条件：
+
+- **举证责任在声称者。** 能证明控制原提交所用的邮箱、能提供可对原提交验证的签名、
+  或说得出交付中从未公开过的细节。一个新账号自称是同一个人，不算证据。
+- **判断由维护者做出，并写进 GOVERNANCE-LOG.md**，认或不认都写，连同理由。
+  不认可以像其他争议一样走 `arbitrate`。
+- **不设时效。** 一笔债不会因为本人过了一年才回来就消失。未偿清单在每 90 天复审
+  供资条款时一并复核。
+- **本条不产生任何新的发放权。** 支付走常规路径：任务托管，然后 `split` 或 `settle`。
+  原托管如果已经结清，先按供资条款及其现有上限补足。
+
+**本条只覆盖一种情况：账号不存在了。** 它不是一项绕开托管体系给人付钱的通用权力，
+也不构成其他"情有可原"情形的先例。要扩展它，得单独走一次改规则程序。
+
+**它很可能永远用不上。** 账号消失时，PR 通常一起消失，提交、邮箱、签名也跟着没了——
+一个人要证明自己就是那个债主所需要的证据，往往被制造这笔债的同一件事销毁了。
+这是个诚实的局限，不是不写这条款的理由。一笔承认了却还不上的债，仍然好过悄悄删掉。
 
 ## 处分
 
@@ -267,7 +402,7 @@ Open an issue with the `governance` label. Changes affecting TP pricing or red l
 
 ### 唯一的例外：给板子供血
 
-在**三个不同账号各自至少发过一个任务**之前，维护者可以发放 TP，且只能用于一个目的：给别人能拿到报酬的任务供资。
+维护者可以发放 TP，且只能用于一个目的：给别人能拿到报酬的任务供资。
 
 这一条依赖的区分是：TP 不可转让、不可交易、不能提现，所以经维护者余额进入托管的积分，对维护者本人一分钱价值都没有。它们会离开他的余额、进入接单者的余额，然后留在那儿。发放它是通胀，不是自肥——而通胀本来就是可见的，因为 `total_issued` 每次跑 `npm run ledger` 都会从完整历史重算一遍。
 
@@ -277,8 +412,26 @@ Open an issue with the `governance` label. Changes affecting TP pricing or red l
 - 24 小时内必须托管到已发布的任务上，否则用冲正条目撤回
 - 在 [GOVERNANCE-LOG.md](GOVERNANCE-LOG.md) 里列出金额和它资助了什么
 - 一次 50 TP，且维护者手上还有未托管余额时不得再发
+- 每 90 天必须在 [GOVERNANCE-LOG.md](GOVERNANCE-LOG.md) 里复审并重新论证一次。**下次复审截止：2026-11-22。**
 
-**以上没有任何一条是机器强制的。** `verify.mjs` 会接受任何能平账的 `adjust`；真正防滥用的是每一次发放都是一个只追加的公开文件里、署着维护者名字的一行。这条例外之所以存在，是因为板子的第一个月出现的是和预期相反的失败：积分堆在了只交付的人手里，而唯一在发任务的人耗光了。第三个发单者一出现，这条自动失效。
+**以上没有任何一条是机器强制的。** `verify.mjs` 会接受任何能平账的 `adjust`；真正防滥用的是每一次发放都是一个只追加的公开文件里、署着维护者名字的一行。这条例外之所以存在，是因为板子的第一个月出现的是和预期相反的失败：积分堆在了只交付的人手里，而唯一在发任务的人耗光了。
+
+**这条例外怎么结束。** 原本只有一种结束方式：三个不同账号各自发过一个任务。
+[Phase 0](PHASE-0.md) 结案时的事实是需求侧根本不存在——八个任务，一个发单方，
+直接问有没有想让人做的事，没有人回答。一个可能永远不触发的条件不叫过期条件，
+它是一份穿着过期条件外衣的永久授权，而这正是 [#12](https://github.com/mxx1111/spare-cycles/issues/12)
+请大家盯着的那种情况。
+
+所以现在有两条出路，其中只有一条依赖别人：
+
+1. **三个不同账号各自至少发过一个任务。** 板子有了需求侧，不再需要供血。
+   保留这一条，是因为它一旦真的发生，就该立刻终止本条款。
+2. **错过一次定期复审。** 每 90 天必须在 GOVERNANCE-LOG.md 里重新论证一遍：
+   这段时间它资助了什么、板子是否还需要它、为什么它仍是最不坏的选择。
+   过了日子没写，条款即失效；在按常规改规则程序重新通过之前，任何新的发放都不合法。
+
+第二条才是真正起作用的那条。它让维护者为保有这项权力付出成本——一次公开的、有时限的、
+任何人都可以来反驳的论证——而且它不依赖一个可能永远不会出现的发单者。
 
 **这条规则被破过一次**，2026-08-18，而这次例外是写下来的，不是藏起来的。前 8 条的 `ts` 当初是手写的编造值而不是实际观测到的事件时间，其中最后一条落在几小时之后的未来，把结算卡死了。九条时间戳一次性用 GitHub API 拉的真实时间重写。金额、类型、账户、余额一律未动，改的只是本来就是错的那些时间。理由写在 `ledger.jsonl` 的文件头和 [GOVERNANCE-LOG.md](GOVERNANCE-LOG.md) 里，`verify.mjs` 现在会拒绝任何未来时间的条目——那条不变量本来在第一行就能拦住它。如果还需要再来一次，就得走 `governance` issue 和七天讨论，跟任何其他规则变更一样。
 

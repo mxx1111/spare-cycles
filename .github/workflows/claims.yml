@@ -1,0 +1,58 @@
+name: Claims
+
+# GOVERNANCE.md describes claim windows, expiry, and red line 4. Until this workflow existed
+# none of it ran — the rules required a maintainer to be awake, and GOVERNANCE-LOG.md records
+# what that cost on 2026-08-18 and 2026-08-19. Specification: issue #16.
+on:
+  issue_comment:
+    types: [created]
+  schedule:
+    # Hourly. The finest granularity any timer here needs is the 75% warning on a 24h window.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+# A burst of comments must not race the sweep into double-assigning or double-releasing.
+concurrency:
+  group: claims-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  claim:
+    if: github.event_name == 'issue_comment' && !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The payload goes through the environment, never interpolated into the script body.
+      # `${{ github.event.comment.body }}` spliced into a `run:` block is a command-injection
+      # hole: anyone who can comment could then run commands in this job. Same reasoning as
+      # the note in compliance.yml.
+      - name: Handle claim
+        env:
+          EVENT_PAYLOAD: ${{ toJSON(github.event) }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/claim-bot.mjs oncomment
+
+  sweep:
+    if: github.event_name != 'issue_comment'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sweep claims and stalled deliveries
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/claim-bot.mjs sweep

@@ -48,10 +48,10 @@ User-to-user transfers do not exist in this schema. This is red line 5 from [COM
 
 ## Timestamps must be observed, not typed
 
-`ts` is the time the event actually happened, taken from the source of truth: `createdAt` on
-the issue for an `escrow`, `closedAt` for a `refund`, and `mergedAt` on a merged pull request
-or `closedAt` when the requester explicitly accepts an unmerged delivery. Pull it with `gh`
-rather than typing something plausible.
+`ts` is the time the ledger event actually happened. Use a source-of-truth timestamp when one
+exists: `createdAt` on the issue for an `escrow` or `closedAt` for a `refund`. A settlement can
+happen after its delivery PR closes, but never before it; CI checks that ordering against the
+PR's `mergedAt` or accepted `closedAt` rather than trusting a typed claim.
 
 This is stated as a rule because it was broken. Entries 1–8 were originally filled in with
 tidy invented values — 12:00, 12:01, … 14:00 — none of which corresponded to anything. The
@@ -73,7 +73,7 @@ Checked locally and in CI:
 8. Escrow released for a `ref` never exceeds escrow taken for that `ref`
 9. Total TP in circulation equals the sum of all `grant` and `adjust` amounts
 10. A `refund` returns only to the requester who funded that issue's escrow
-11. Every `settle` names an existing closed or merged GitHub PR whose event time matches `ts` and whose body references the task
+11. Every `settle` names an existing closed or merged GitHub PR whose event time is no later than `ts` and whose body references the task
 
 Invariants 1-10 are enforced by `verify.mjs`. Invariant 11 is enforced by `pr-evidence.mjs`
 against GitHub's API in CI. Invariants 5 and 6 are checked **incrementally**, not just at the

@@ -2,9 +2,21 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-A mutual-aid task board for developers who use subscription AI coding tools.
+**Hand a slice of private work to someone you have no reason to trust, and verify they actually did it.**
 
-Some weeks you burn through your Claude Max weekly limit by Wednesday and your project stalls. Other weeks the cycle rolls over with most of it unused. Across a community those two situations happen at the same time, to different people. Spare Cycles is an attempt to connect them.
+You have a task — a bug you keep putting off, a test suite nobody wants to write, a script that needs porting. The code belongs to your employer, so you cannot paste it into a public issue. So it sits there.
+
+Three things stacked, each usable on its own:
+
+| | |
+|---|---|
+| [**sparepack**](https://github.com/mxx1111/sparepack) | Cuts a minimal, redacted slice out of a private repo. Allowlist only, function bodies stripped to signatures, real data swapped for fixtures, and you review it file by file before anything is written. |
+| **The board** | Hands that slice to whoever turns up, under a claim protocol that runs without a human awake. |
+| **The ledger** | Append-only, eleven invariants, every balance replayed from history by `node ledger/verify.mjs`, with settlement PRs verified against GitHub's API. |
+
+This started as a mutual-aid board for people whose Claude Max limit runs out by Wednesday while someone else's rolls over unused. That framing was half right. The supply of people willing to do the work is real — six deliveries, no rewrites. The rest of it did not survive contact: **every task ever posted came from one account**, and the activity profiles of the accounts that arrived look nothing like the community it was built for.
+
+That is written up in full, with the numbers, in [**ADVERSARIAL.md**](ADVERSARIAL.md) — along with the claim flooding, the templated solicitation, the fake delivery with a crypto wallet attached, and the security audit that found two real holes in this repository. If you only read one file here to decide whether the mechanism is worth anything, read that one.
 
 ## What this is not
 
@@ -18,13 +30,17 @@ So there are no quota pools here, no token relays, no proxies, no shared account
 
 ## What this actually is
 
-People with spare capacity **do the work themselves** and hand over the **result** — a pull request — rather than access to their account. You sit at your own keyboard, on your own subscription, and review what you ship. That is ordinary freelance work, and it is fine.
+Whoever does the work **does it themselves** and hands over the **result** — a pull request — rather than access to their account. They sit at their own keyboard, on their own subscription, and review what they ship. That is ordinary freelance work, and it is fine.
 
-The scarce resource was never tokens. It was people with time and willingness.
+**There is no payout address.** Task Points have no cash value, cannot be transferred, sold, or cashed out, and no payment of any kind will ever be sent to any wallet or account by anyone here. If you found this repository on a bounty aggregator, that is the whole answer.
+
+The original claim was that the scarce resource is people with time and willingness rather than tokens. Half of that held: the work got done. The half that did not is that nobody who did the work ever wanted anything done in return — see [ADVERSARIAL.md](ADVERSARIAL.md).
 
 ## What you get out of it
 
 **A verifiable public track record.** Every delivery is a merged PR in someone's real repository, recorded in `profiles/<your-handle>.md` with the task type, privacy tier, and the requester's assessment. Real production code, not toy problems. That is worth something when you are job hunting or pitching contract work, in a way that a LeetCode streak is not.
+
+Stated honestly: this has not turned out to be what draws people here, and the profiles of contributors who left are kept anyway — including one whose account no longer exists.
 
 **Task Points (TP)** are the second thing, and they are deliberately boring. TP are an internal quota mechanism, not a reward — they exist so that nobody can post tasks forever without ever doing any. You earn them by delivering, you spend them by requesting. They cannot be transferred, gifted, cashed out, or traded. There is no secondary market and there will not be one.
 

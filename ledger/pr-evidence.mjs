@@ -55,8 +55,12 @@ export async function verifyPullRequestEvidence(
     const eventAt = pull.merged_at ?? pull.closed_at
     if (!eventAt) {
       errors.push(`line ${entry.seq}: pull request evidence is still open`)
-    } else if (Date.parse(eventAt) !== Date.parse(entry.ts)) {
-      errors.push(`line ${entry.seq}: settle timestamp must equal the pull request mergedAt or closedAt`)
+    } else {
+      const eventTime = Date.parse(eventAt)
+      const settleTime = Date.parse(entry.ts)
+      if (!Number.isFinite(eventTime) || !Number.isFinite(settleTime) || eventTime > settleTime) {
+        errors.push(`line ${entry.seq}: settle timestamp must not precede the pull request mergedAt or closedAt`)
+      }
     }
 
     const pullRepo = `${parsed.owner}/${parsed.repo}`

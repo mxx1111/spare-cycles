@@ -76,7 +76,7 @@ body:
     id: acceptance
     attributes:
       label: "Acceptance criteria / 验收标准"
-      description: "**This is the contract.** Anything not written here cannot later be used as grounds for refusing delivery. Be specific and be complete. / **这就是合同。** 没写在这里的东西，事后不能拿来作为拒收的理由。写具体，写全。"
+      description: "**This is the contract.** Anything not written here cannot later be used as grounds for refusing delivery. Be specific and be complete.\n\n**At least one criterion must be an executable check** — a test command, a CI job, a script anyone can run. A delivery whose correctness cannot be checked by running something does not settle. This is not bureaucracy: a board that takes work from accounts it cannot vouch for has no other way to tell a real delivery from a convincing summary of one. See ADVERSARIAL.md. / **这就是合同。** 没写在这里的东西，事后不能拿来作为拒收的理由。写具体，写全。\n\n**至少要有一条是可执行的检查**——一条测试命令、一个 CI 任务、一个谁都能跑的脚本。正确性无法靠运行某个东西来验证的交付，不予结算。这不是官僚主义：一块从无法背书的账号手里接收工作的板子，没有别的办法区分一份真交付和一份写得很像的总结。见 ADVERSARIAL.md。"
       placeholder: |
         - [ ] All tests in tests/importer/ pass
         - [ ] Peak memory stays under 100MB for a 500MB input file

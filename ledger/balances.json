@@ -1,15 +1,17 @@
 {
   "generated_from": "ledger.jsonl",
-  "entries": 18,
-  "total_issued": 100,
-  "in_escrow": 40,
+  "entries": 27,
+  "total_issued": 220,
+  "in_escrow": 140,
   "balances": {
-    "ghzhost": 50,
+    "ghzhost": 60,
     "manav8498": 10,
-    "mxx1111": 0
+    "mxx1111": 0,
+    "rafaio1": 10
   },
   "open_escrow": {
     "#9": 30,
-    "#10": 10
+    "#18": 80,
+    "#19": 30
   }
 }
