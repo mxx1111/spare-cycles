@@ -387,8 +387,8 @@
       <b><span data-zh>账本谁都能从零重算</span><span data-en>Anyone can recompute the ledger</span></b>
       <p>
         <!-- stats:summary -->
-<span data-zh>27 条记录、9 条不变量、一条命令。余额不是维护者说了算，是从完整历史重放出来的。快照和重算对不上，以重算为准。</span>
-<span data-en>27 entries, 9 invariants, one command. Balances are not asserted by the maintainer, they are replayed from the full history. If the snapshot disagrees with the replay, the replay wins.</span>
+<span data-zh>27 条记录、11 条不变量、一条命令。余额不是维护者说了算，是从完整历史重放出来的。快照和重算对不上，以重算为准。</span>
+<span data-en>27 entries, 11 invariants, one command. Balances are not asserted by the maintainer, they are replayed from the full history. If the snapshot disagrees with the replay, the replay wins.</span>
 <!-- /stats:summary -->
       </p>
     </div>
@@ -529,8 +529,8 @@ npx sparepack verify   <span class="c"># <span data-zh>从磁盘重新推导，�
       <b><span data-zh>脱敏任务包 · 私有项目的默认选择</span><span data-en>Redacted pack · the default for private work</span></b>
       <span data-zh>接口、验收测试、假数据。业务逻辑不出门。</span><span data-en>Interfaces, acceptance tests, synthetic fixtures. No business logic.</span></div></div>
     <div class="tier"><div class="t">P2</div><div class="d">
-      <b><span data-zh>一次性沙箱</span><span data-en>Ephemeral sandbox</span></b>
-      <span data-zh>接单者在自己账号下开 Codespace，代码不落他的磁盘。双方都不是对方的宿主——这是关键。</span><span data-en>The worker opens a Codespace on their own account; code never touches their disk. Neither party is the other's host — that is the point.</span></div></div>
+      <b><span data-zh>临时受信访问</span><span data-en>Temporary trusted access</span></b>
+      <span data-zh>接单者控制 Codespace，可以复制所有可见代码。撤权只能阻止后续访问，不能收回副本。</span><span data-en>The worker controls the Codespace and can copy all visible code. Revocation ends future access but cannot recall copies.</span></div></div>
     <div class="tier"><div class="t">P3</div><div class="d">
       <b><span data-zh>信任圈</span><span data-en>Trust circle</span></b>
       <span data-zh>NDA 下的完整访问，只给已有关系的人。</span><span data-en>Full access under NDA, for people you already know.</span></div></div>
@@ -628,8 +628,8 @@ Balances:
 <span class="g">All invariants hold.</span></pre>
 <!-- /stats:terminal -->
   <p>
-    <span data-zh><code>ledger.jsonl</code> 只追加：不改行、不删行、不调顺序，更正一律是新增的冲正条目。<code>balances.json</code> 是派生产物，两者对不上时以重算为准。校验器检查九条不变量，其中余额非负和托管非负是<strong>逐条增量检查</strong>的——中途变成负数、后面又补回来的历史一样判无效。</span>
-    <span data-en><code>ledger.jsonl</code> is append-only: never edit a line, never delete one, never reorder. Corrections are new compensating entries. <code>balances.json</code> is derived output, and if the two disagree the recomputation wins. The verifier checks nine invariants, and the two non-negativity ones are checked <strong>incrementally</strong> — a history that dips negative in the middle and recovers is still invalid.</span>
+    <span data-zh><code>ledger.jsonl</code> 只追加：不改行、不删行、不调顺序，更正一律是新增的冲正条目。<code>balances.json</code> 是派生产物，两者对不上时以重算为准。校验器检查十一条不变量，其中余额非负和托管非负是<strong>逐条增量检查</strong>的——中途变成负数、后面又补回来的历史一样判无效。</span>
+    <span data-en><code>ledger.jsonl</code> is append-only: never edit a line, never delete one, never reorder. Corrections are new compensating entries. <code>balances.json</code> is derived output, and if the two disagree the recomputation wins. The verifier checks eleven invariants, and the two non-negativity ones are checked <strong>incrementally</strong> — a history that dips negative in the middle and recovers is still invalid.</span>
   </p>
 
   <h3><span data-zh>红线 5 长什么样</span><span data-en>What red line 5 looks like</span></h3>
@@ -649,8 +649,8 @@ const TYPES = {
   <div class="callout">
     <div class="label"><span data-zh>这条不变量是被撞出来的</span><span data-en>One invariant exists because it broke</span></div>
     <p class="small">
-      <span data-zh>时间戳必须是<strong>观测到的</strong>事件时间——issue 的 <code>createdAt</code>、PR 的 <code>mergedAt</code>——而不是敲一个看起来合理的值。这条写成规则是因为它被违反过：最早的八条记录填的是 12:00、12:01……14:00 这种编造值，单调递增检查全过（编造的递增数字确实在递增），直到一个真实时间戳排在编造值后面，结算直接死锁。现在校验器会拒绝任何未来时间——那是「这个值是敲出来的」唯一能被机器识别的证据。整个更正过程写在账本文件头里。</span>
-      <span data-en>A timestamp must be an <strong>observed</strong> event time — the issue's <code>createdAt</code>, the PR's <code>mergedAt</code> — not a plausible-looking value someone typed. This is a rule because it was broken: the first eight entries were filled in with tidy invented times, 12:00, 12:01, … 14:00. Monotonicity passed, because invented increasing numbers do increase. It only surfaced when a real timestamp arrived behind an invented one and settlement deadlocked. The verifier now rejects any future-dated entry — the one machine-detectable proof that a time was typed rather than observed. The correction is documented in the ledger's header.</span>
+      <span data-zh>时间戳必须是<strong>观测到的</strong>账本事件时间，而不是敲一个看起来合理的值。结算可以晚于交付 PR 合并，但不能早于它；CI 会用 GitHub 的 <code>mergedAt</code> 或已接受的 <code>closedAt</code> 检查这个顺序。最早的八条记录曾填入编造值，直到真实时间落在它们后面才让结算死锁；完整更正过程写在账本文件头里。</span>
+      <span data-en>A timestamp must be an <strong>observed</strong> ledger-event time, not a plausible-looking value someone typed. Settlement may follow delivery, but it cannot precede the PR's <code>mergedAt</code> or accepted <code>closedAt</code>; CI checks that ordering through GitHub. The first eight entries once used invented values and deadlocked when a real event arrived behind them; the correction is documented in the ledger header.</span>
     </p>
   </div>
 
@@ -948,8 +948,8 @@ const TYPES = {
     </div>
     <!-- stats:totals -->
 <p class="note">
-      <span data-zh>合计：发放 220 TP，结算 70 TP，托管中 140（3 个开放任务）。账本 27 条记录，9 条不变量全过。发放额从 50 涨到 100，是维护者为给板子供资发放的一笔——<a href="https://github.com/mxx1111/spare-cycles/issues/12">规则改动</a>与<a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">全过程</a>都公开记录，那笔钱当天全部进了托管，维护者余额仍是 0。</span>
-      <span data-en>Total: 220 TP issued, 70 TP settled, 140 in escrow across 3 open tasks. 27 ledger entries, all nine invariants holding. Issuance rose from 50 to 100 because the maintainer funded the board — the <a href="https://github.com/mxx1111/spare-cycles/issues/12">rule change</a> and <a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">the whole of it</a> are on the record, all of it reached escrow the same day, and the maintainer balance is still zero.</span>
+      <span data-zh>合计：发放 220 TP，结算 70 TP，托管中 140（3 个开放任务）。账本 27 条记录，11 条不变量全过。发放额从 50 涨到 100，是维护者为给板子供资发放的一笔——<a href="https://github.com/mxx1111/spare-cycles/issues/12">规则改动</a>与<a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">全过程</a>都公开记录，那笔钱当天全部进了托管，维护者余额仍是 0。</span>
+      <span data-en>Total: 220 TP issued, 70 TP settled, 140 in escrow across 3 open tasks. 27 ledger entries, all eleven invariants holding. Issuance rose from 50 to 100 because the maintainer funded the board — the <a href="https://github.com/mxx1111/spare-cycles/issues/12">rule change</a> and <a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">the whole of it</a> are on the record, all of it reached escrow the same day, and the maintainer balance is still zero.</span>
     </p>
 <!-- /stats:totals -->
   </div>
