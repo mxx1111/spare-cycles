@@ -55,7 +55,7 @@ body:
       options:
         - "P0 — public repository / 公开仓库"
         - "P1 — redacted sparepack, interfaces and tests only / 脱敏任务包，只给接口和测试"
-        - "P2 — ephemeral Codespace sandbox / 一次性 Codespace 沙箱"
+        - "P2 — temporary trusted Codespace access / 临时受信 Codespace 访问"
         - "P3 — trust circle, NDA required / 信任圈，需 NDA"
     validations:
       required: true

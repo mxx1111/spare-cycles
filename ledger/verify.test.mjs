@@ -30,6 +30,7 @@ function verify(entries) {
   } catch (err) {
     stdout = err.stdout
     code = err.status
+    if (!stdout) throw new Error(err.stderr || err.message)
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }
@@ -82,6 +83,15 @@ test('a timed-out task refunds the requester in full', () => {
   assert.equal(r.ok, true, r.errors.join('\n'))
   assert.deepEqual(r.balances, { alice: 50 })
   assert.equal(r.in_escrow, 0)
+})
+
+test('a refund cannot be redirected to a different account', () => {
+  const r = verify([
+    grant(1, 'alice', 50),
+    escrow(2, 'alice', 30, '#1', later(1)),
+    { seq: 3, ts: later(2), type: 'refund', to: 'bob', amount: 30, ref: '#1', reason: 'claim timeout' },
+  ])
+  assertRejected(r, 'must return to escrow owner alice')
 })
 
 test('an arbitrated split divides escrow between both parties', () => {
@@ -205,6 +215,15 @@ test('settle without a PR link is rejected', () => {
     { seq: 3, ts: later(2), type: 'settle', to: 'bob', amount: 30, ref: '#1' },
   ])
   assertRejected(r, 'requires "pr"')
+})
+
+test('settle with fabricated PR evidence is rejected', () => {
+  const r = verify([
+    grant(1, 'alice', 50),
+    escrow(2, 'alice', 30, '#1', later(1)),
+    { seq: 3, ts: later(2), type: 'settle', to: 'bob', amount: 30, ref: '#1', pr: 'not-a-url' },
+  ])
+  assertRejected(r, 'GitHub pull request URL')
 })
 
 test('adjust without an authorizing maintainer is rejected', () => {
