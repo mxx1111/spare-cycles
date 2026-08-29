@@ -126,8 +126,8 @@ function renderSettledStat() {
 
 // Format Summary text in highlights (03 账本谁都能从零重算)
 function renderRecomputeSummary() {
-  return `<span data-zh>${entryCount} 条记录、9 条不变量、一条命令。余额不是维护者说了算，是从完整历史重放出来的。快照和重算对不上，以重算为准。</span>
-<span data-en>${entryCount} entries, 9 invariants, one command. Balances are not asserted by the maintainer, they are replayed from the full history. If the snapshot disagrees with the replay, the replay wins.</span>`
+  return `<span data-zh>${entryCount} 条记录、11 条不变量、一条命令。余额不是维护者说了算，是从完整历史重放出来的。快照和重算对不上，以重算为准。</span>
+<span data-en>${entryCount} entries, 11 invariants, one command. Balances are not asserted by the maintainer, they are replayed from the full history. If the snapshot disagrees with the replay, the replay wins.</span>`
 }
 
 // Format Leaderboard balances table
@@ -189,8 +189,8 @@ ${rows.join('\n')}
 function renderTotalsNote() {
   const settledTotal = settledEntries.reduce((sum, e) => sum + e.amount, 0)
   return `<p class="note">
-      <span data-zh>合计：发放 ${totalIssued} TP，结算 ${settledTotal} TP，托管中 ${inEscrow}（${openTaskCount} 个开放任务）。账本 ${entryCount} 条记录，9 条不变量全过。发放额从 50 涨到 100，是维护者为给板子供资发放的一笔——<a href="https://github.com/mxx1111/spare-cycles/issues/12">规则改动</a>与<a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">全过程</a>都公开记录，那笔钱当天全部进了托管，维护者余额仍是 0。</span>
-      <span data-en>Total: ${totalIssued} TP issued, ${settledTotal} TP settled, ${inEscrow} in escrow across ${openTaskCount} open tasks. ${entryCount} ledger entries, all nine invariants holding. Issuance rose from 50 to 100 because the maintainer funded the board — the <a href="https://github.com/mxx1111/spare-cycles/issues/12">rule change</a> and <a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">the whole of it</a> are on the record, all of it reached escrow the same day, and the maintainer balance is still zero.</span>
+      <span data-zh>合计：发放 ${totalIssued} TP，结算 ${settledTotal} TP，托管中 ${inEscrow}（${openTaskCount} 个开放任务）。账本 ${entryCount} 条记录，11 条不变量全过。发放额从 50 涨到 100，是维护者为给板子供资发放的一笔——<a href="https://github.com/mxx1111/spare-cycles/issues/12">规则改动</a>与<a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">全过程</a>都公开记录，那笔钱当天全部进了托管，维护者余额仍是 0。</span>
+      <span data-en>Total: ${totalIssued} TP issued, ${settledTotal} TP settled, ${inEscrow} in escrow across ${openTaskCount} open tasks. ${entryCount} ledger entries, all eleven invariants holding. Issuance rose from 50 to 100 because the maintainer funded the board — the <a href="https://github.com/mxx1111/spare-cycles/issues/12">rule change</a> and <a href="https://github.com/mxx1111/spare-cycles/blob/main/GOVERNANCE-LOG.md">the whole of it</a> are on the record, all of it reached escrow the same day, and the maintainer balance is still zero.</span>
     </p>`
 }
 

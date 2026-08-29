@@ -64,7 +64,7 @@ Six transaction types only: `grant`, `escrow`, `settle`, `refund`, `split`, `adj
 `transfer` and never will be** — that is COMPLIANCE red line 5 (TP are not transferable) expressed
 as a data structure instead of a promise, and `verify.mjs` treats any unrecognised type as
 tampering. Balances and escrow are checked incrementally at every entry, so a history that dips
-negative mid-way and recovers is invalid. Schema and the nine invariants are in `ledger/README.md`.
+negative mid-way and recovers is invalid. Schema and the eleven invariants are in `ledger/README.md`.
 
 Settling a task by hand: append the entry, run `npm test` and `npm run ledger:write`, then update
 `profiles/<handle>.md`.
