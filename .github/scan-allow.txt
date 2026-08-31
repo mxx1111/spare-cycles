@@ -1,6 +1,6 @@
 # Findings the credential scanner reports that have been read and judged safe to publish.
 #
-# Format, one per line:   rule-id:path        or   rule-id:path:line
+# Format, one per line:   rule-id:path:line
 # `#` starts a comment. Always leave one saying why — an entry with no reasoning is
 # indistinguishable from someone silencing an inconvenient check.
 #

@@ -6,6 +6,8 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { parsePullRequestUrl } from './pr-evidence.mjs'
+
 const HERE = dirname(fileURLToPath(import.meta.url))
 
 // An explicit path lets the test suite point at fixture ledgers.
@@ -112,12 +114,17 @@ function checkShape(e, expectedSeq, prevTs) {
     fail(where, `"ref" must look like "#123", got ${JSON.stringify(e.ref)}`)
   }
 
+  if (e.pr !== undefined && !parsePullRequestUrl(e.pr)) {
+    fail(where, `"pr" must be a canonical GitHub pull request URL, got ${JSON.stringify(e.pr)}`)
+  }
+
   return Number.isNaN(ts) ? prevTs : ts
 }
 
 function replay(entries) {
   const balances = new Map()
   const escrow = new Map()        // ref -> TP currently held
+  const escrowOwner = new Map()   // ref -> requester who funded it
   const escrowTaken = new Map()   // ref -> total ever escrowed
   const escrowFreed = new Map()   // ref -> total ever released
   let issued = 0                  // grant + adjust, i.e. TP created from nothing
@@ -144,7 +151,13 @@ function replay(entries) {
         if (bal(e.from) < e.amount) {
           fail(where, `${e.from} escrowed ${e.amount} TP with only ${bal(e.from)} available`)
         }
+        const owner = escrowOwner.get(e.ref)
+        if (owner && owner !== e.from) {
+          fail(where, `${e.ref} escrow is already owned by ${owner}, not ${e.from}`)
+          break
+        }
         add(e.from, -e.amount)
+        escrowOwner.set(e.ref, e.from)
         escrow.set(e.ref, (escrow.get(e.ref) ?? 0) + e.amount)
         escrowTaken.set(e.ref, (escrowTaken.get(e.ref) ?? 0) + e.amount)
         break
@@ -156,6 +169,11 @@ function replay(entries) {
         const held = escrow.get(e.ref) ?? 0
         if (!escrowTaken.has(e.ref)) {
           fail(where, `${e.type} for ${e.ref} but nothing was ever escrowed against it`)
+          break
+        }
+        const owner = escrowOwner.get(e.ref)
+        if (e.type === 'refund' && e.to !== owner) {
+          fail(where, `${e.type} for ${e.ref} must return to escrow owner ${owner}, not ${e.to}`)
           break
         }
         // Invariant 6 and 8: an issue cannot pay out more than it took in.

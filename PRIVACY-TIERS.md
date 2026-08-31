@@ -74,29 +74,40 @@ Some tasks genuinely need the surrounding codebase — debugging an integration 
 
 ---
 
-## P2 · Ephemeral sandbox
+## P2 · Temporary trusted access
 
-The code never touches the worker's disk.
+The worker can read and copy the complete visible repository. A Codespace keeps execution
+off the worker's local machine, but it does not prevent downloads or retained copies.
+Revoking access stops future reads; it cannot recall code the worker already saw.
 
-1. Requester adds the worker as a collaborator, scoped to one dedicated branch via branch protection.
+1. Requester grants collaborator access to the repository and uses branch protection to limit changes to one dedicated branch. Read access still covers the repository.
 2. Worker opens a **Codespace on their own GitHub account** and runs **their own** Claude Code inside it.
 3. Work happens, PR goes up, requester merges.
-4. Requester removes the collaborator, deletes the branch. The Codespace expires on its own.
+4. Requester removes the collaborator and deletes the branch. This ends future access only.
 
 ### Why Codespaces and not a container on the requester's machine
 
-**Neither party is the other's host.** This is the whole point.
+**Neither party runs code on the other's hardware.** This protects the worker's credentials,
+not the requester's source from a worker who has already been granted access.
 
 If the sandbox ran on the requester's hardware, the requester would be root on the box where the worker's `~/.claude/.credentials.json` is mounted. That turns a privacy feature into a credential-harvesting device — strictly worse than not doing it at all. Putting the sandbox on Microsoft's infrastructure makes it a neutral third party to both sides, and personal accounts get 60 free core-hours a month.
 
 The cost is that your code passes through GitHub's cloud. For most projects that is already true. For the ones where it is not, see P3.
 
+The Codespace belongs to the worker's account. Branch protection limits writes, not reads,
+downloads, terminal commands, or copies to another location. Use P1 or a separate repository
+containing only the minimum required code unless the worker may permanently retain everything
+they can see.
+
 ### Checklist for the requester
 
-- [ ] Branch protection restricts the worker to the task branch
+- [ ] The worker is trusted with a permanent copy of every visible file
+- [ ] A minimum-code temporary repository was considered before granting full-repository access
+- [ ] Branch protection limits changes to the task branch and is not treated as read isolation
+- [ ] Secrets and unrelated sensitive files are removed before access is granted
 - [ ] No secrets in the repo's Codespaces secrets for that branch
 - [ ] Repository-level Actions permissions reviewed before granting access
-- [ ] Calendar reminder to revoke access after merge
+- [ ] Calendar reminder to revoke future access after merge
 
 ---
 
@@ -203,29 +214,36 @@ npx sparepack init
 
 ---
 
-## P2 · 一次性沙箱
+## P2 · 临时受信访问
 
-代码不落接单者磁盘。
+接单者可以读取并复制完整的可见仓库。Codespace 只是让执行环境不在接单者的本地机器上，
+它不能阻止下载或保留副本。撤权只能阻止后续读取，无法收回接单者已经看过的代码。
 
-1. 发布者把接单者加为 collaborator，用分支保护限定在一个专用分支上。
+1. 发布者授予接单者仓库 collaborator 权限，并用分支保护把改动限制在专用分支；读取权限仍覆盖仓库。
 2. 接单者在**自己的 GitHub 账号下**开 Codespace，在里面跑**他自己的** Claude Code。
 3. 干活，提 PR，发布者合并。
-4. 发布者移除 collaborator、删分支。Codespace 自己会过期。
+4. 发布者移除 collaborator、删分支。这只能终止后续访问。
 
 ### 为什么用 Codespaces 而不是发布者机器上的容器
 
-**双方都不是对方的宿主。** 这就是全部理由。
+**双方都不在对方的硬件上运行代码。** 这保护的是接单者的凭证，不是已经授权给接单者读取的源码。
 
 如果沙箱跑在发布者的硬件上，发布者就是那台机器的 root，而接单者的 `~/.claude/.credentials.json` 正挂在里面。那样一个隐私功能就变成了凭证收割装置，比不做还糟。把沙箱放在微软的基础设施上，对双方而言它都是中立第三方，而且个人账号每月有 60 核时免费额度。
 
 代价是代码要过 GitHub 的云。对大多数项目来说这本来就已经是事实了。不是的那些，看 P3。
 
+Codespace 属于接单者账号。分支保护限制的是写入，不会限制读取、下载、终端命令或复制到别处。
+除非你能接受接单者永久保留所有可见内容，否则应使用 P1，或单独建立只包含最低必要代码的临时仓库。
+
 ### 发布者检查清单
 
-- [ ] 分支保护已把接单者限制在任务分支上
+- [ ] 已确认接单者可以永久持有每一个可见文件的副本
+- [ ] 授予完整仓库访问前，已经考虑过只放最低必要代码的临时仓库
+- [ ] 分支保护只把改动限制在任务分支，没有被当作读取隔离
+- [ ] 授权前已经移除密钥和无关敏感文件
 - [ ] 该分支相关的 Codespaces secrets 里没有密钥
 - [ ] 授权前复查过仓库级的 Actions 权限
-- [ ] 设好合并后回收权限的提醒
+- [ ] 设好合并后回收后续访问权限的提醒
 
 ---
 
