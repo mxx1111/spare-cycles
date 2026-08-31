@@ -30,9 +30,10 @@ jobs:
       - name: Scan submitted text
         id: scan
         env:
+          TITLE: ${{ github.event.issue.title }}
           BODY: ${{ github.event.comment.body || github.event.issue.body }}
         run: |
-          printf '%s' "$BODY" | node scripts/scan-text.mjs > verdict.json
+          printf '%s\n%s' "$TITLE" "$BODY" | node scripts/scan-text.mjs > verdict.json
           cat verdict.json
           {
             echo "block=$(node -p "require('./verdict.json').block")"

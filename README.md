@@ -12,7 +12,7 @@ Three things stacked, each usable on its own:
 |---|---|
 | [**sparepack**](https://github.com/mxx1111/sparepack) | Cuts a minimal, redacted slice out of a private repo. Allowlist only, function bodies stripped to signatures, real data swapped for fixtures, and you review it file by file before anything is written. |
 | **The board** | Hands that slice to whoever turns up, under a claim protocol that runs without a human awake. |
-| **The ledger** | Append-only, nine invariants, every balance replayed from history by `node ledger/verify.mjs`. Two more invariants and API-verified settlements are in [#17](https://github.com/mxx1111/spare-cycles/pull/17), awaiting its author. |
+| **The ledger** | Append-only, eleven invariants, every balance replayed from history by `node ledger/verify.mjs`, with settlement PRs verified against GitHub's API. |
 
 This started as a mutual-aid board for people whose Claude Max limit runs out by Wednesday while someone else's rolls over unused. That framing was half right. The supply of people willing to do the work is real — six deliveries, no rewrites. The rest of it did not survive contact: **every task ever posted came from one account**, and the activity profiles of the accounts that arrived look nothing like the community it was built for.
 
@@ -54,7 +54,7 @@ Every task declares a privacy tier:
 |---|---|---|
 | **P0 · Public** | An ordinary open-source repo | The code is already public |
 | **P1 · Redacted pack** | Interfaces, acceptance tests, fake fixtures. No business logic. | Default for private projects |
-| **P2 · Ephemeral sandbox** | A Codespace on the requester's repo, revoked when done. Code never touches the worker's disk. | The task genuinely needs the real codebase |
+| **P2 · Temporary trusted access** | A worker-controlled Codespace with full, copyable access to the visible repository. Revocation stops future access but cannot recall copies. | The task needs the real codebase and the worker is trusted with it |
 | **P3 · Trust circle** | Full access under NDA | Established relationships only |
 
 P1 is the interesting one. The `sparepack` CLI extracts a minimal reproducible subset from your private repo — allowlist only, nothing is exposed unless you name it — strips function bodies down to signatures, swaps real data for generated fixtures, scans for credentials and PII, and makes you review the output file by file before it writes anything. The worker implements against the tests. Your business logic never leaves your machine.
