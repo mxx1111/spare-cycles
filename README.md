@@ -61,6 +61,16 @@ P1 is the interesting one. The `sparepack` CLI extracts a minimal reproducible s
 
 Details in [PRIVACY-TIERS.md](PRIVACY-TIERS.md).
 
+## Configuration – remap
+
+The `sparepack` packer supports an ordered list of path remapping rules via the `remap` configuration option. Each rule specifies a `{ from, to }` mapping to transform relative source paths into destination paths.
+
+- **Syntax**: `remap: [{ from: "src/", to: "dist/" }]`
+- **Ordering semantics**: First-match-wins. Rules are evaluated in order; the first matching rule is applied and subsequent rules are ignored.
+- **Validation errors**: Rules containing path traversal segments (`..`), absolute paths, or empty `from` values cause a validation `TypeError` during configuration loading.
+- **No-match error**: If a file does not match any remap rule, the packer throws an error.
+- **Relationship to `stripPrefix`**: `stripPrefix` is now sugar for a single-element `remap` rule (`{ from: stripPrefix, to: "" }`).
+
 ## How it works
 
 There is no website and no server. The whole thing runs on GitHub.
