@@ -1,6 +1,6 @@
 # @AuroraNest
 
-Joined 2026-08-19 · 1 delivery · 0 disputes · 80 TP (pending settlement)
+Joined 2026-08-19 · 1 delivery · 0 disputes · 80 TP earned
 
 ## Deliveries
 
@@ -32,9 +32,3 @@ No `no-quota` route fits an unprompted full-repository audit — `review`, `reda
 retroactively and escrowed at the tier-L rate of 80 TP so the settlement references something
 real. Posting a task after its delivery is irregular; the reasoning is on that issue and open
 to challenge.
-
----
-
-**Pending.** The 80 TP above is decided but not yet in `ledger.jsonl`. A `settle` entry must
-name a merged pull request and is verified against the GitHub API by `npm run ledger:prs`, so
-the entry follows the merge rather than preceding it. This note comes off when it lands.
